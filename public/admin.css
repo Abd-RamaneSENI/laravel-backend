@@ -1,0 +1,35 @@
+.upload-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 26px 0 60px; padding: 22px; border: 1px solid #dce8f2; border-radius: 6px; background: #f2f8fd; }
+.upload-form label { display: grid; gap: 6px; font-size: 14px; font-weight: 700; }
+.upload-form input, .upload-form select, .upload-form textarea { width: 100%; min-height: 42px; padding: 8px 10px; border: 1px solid #b8cadd; border-radius: 4px; color: #10233d; background: #fff; font: inherit; }
+.upload-form textarea { resize: vertical; }
+.upload-form input[type=file] { padding: 8px; }
+.upload-form small { color: #61758c; font-weight: 400; }
+.full-width { grid-column: 1 / -1; }
+.admin-list-heading { margin-top: 28px; }
+.admin-shell { width: min(1180px, calc(100% - 48px)); margin-inline: auto; padding-block: 56px; }
+.admin-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0; }
+.admin-tabs a { min-height: 38px; display: inline-flex; align-items: center; padding: 8px 12px; border: 1px solid #dce8f2; border-radius: 6px; background: #fff; color: #0B4A91; font-weight: 700; }
+.admin-tabs a.active { background: #0B4A91; color: #fff; text-decoration: none; }
+.metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 24px 0 34px; }
+.metric-grid div { min-height: 112px; display: grid; align-content: center; gap: 8px; padding: 18px; border: 1px solid #dce8f2; border-radius: 6px; background: #f2f8fd; }
+.metric-grid span, .compact-row small, .admin-table-row small, .config-strip b { display: block; color: #61758c; font-size: 13px; font-weight: 700; }
+.metric-grid strong { color: #0B4A91; font-size: 28px; line-height: 1.1; }
+.admin-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.admin-panel { padding: 18px; border: 1px solid #dce8f2; border-radius: 6px; background: #fff; }
+.admin-panel .section-heading { margin-bottom: 12px; }
+.admin-panel h2 { font-size: 22px; }
+.compact-row { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid #dce8f2; }
+.compact-row:first-of-type { border-top: 0; }
+.compact-row em, .admin-table-row em { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 8px; border-radius: 999px; background: #e8f9ef; color: #126c39; font-style: normal; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+.config-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 22px 0; }
+.config-strip span { padding: 14px; border: 1px solid #dce8f2; border-radius: 6px; background: #f2f8fd; font-weight: 800; }
+.admin-table { overflow-x: auto; border: 1px solid #dce8f2; border-radius: 6px; background: #fff; }
+.admin-table-head, .admin-table-row { min-width: 960px; display: grid; gap: 14px; align-items: center; padding: 14px 16px; border-bottom: 1px solid #dce8f2; }
+.admin-table-head { background: #f2f8fd; color: #0B4A91; font-size: 13px; font-weight: 900; text-transform: uppercase; }
+.admin-table-row:last-child { border-bottom: 0; }
+.orders-grid { grid-template-columns: 1.4fr 1.4fr .8fr .8fr 1fr .9fr; }
+.payments-grid { grid-template-columns: 1.5fr 1fr 1fr .8fr .8fr .9fr; }
+.webhooks-grid { grid-template-columns: 1.5fr 1fr .8fr .8fr .8fr 1fr; }
+.users-grid { grid-template-columns: 1.7fr .8fr .7fr .7fr .8fr .8fr; }
+@media (max-width: 900px) { .metric-grid, .admin-columns, .config-strip { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .upload-form, .metric-grid, .admin-columns, .config-strip { grid-template-columns: 1fr; } .full-width { grid-column: auto; } .admin-shell { width: min(100% - 32px, 1180px); } }
