@@ -101,6 +101,7 @@ Route::prefix('api')->middleware('throttle:120,1')->group(function () {
         Route::post('/books/{book}/reservations', [ReservationController::class, 'store']);
         Route::post('/books/{book}/purchase', [ApiBookController::class, 'purchase']);
         Route::get('/books/{book}/download', [ApiBookController::class, 'downloadPurchased']);
+        Route::post('/resources/{resource}/purchase', [ResourceCatalogController::class, 'purchase']);
         Route::delete('/reservations/{reservation}', [ReservationController::class, 'cancel']);
         Route::get('/reading-documents/{document}/reader', [ReadingDocumentController::class, 'reader']);
         Route::get('/reading-documents/{document}/pages/{page}', [ReadingDocumentController::class, 'page'])->whereNumber('page')->name('api.reading-documents.page');
