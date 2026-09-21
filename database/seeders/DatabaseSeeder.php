@@ -24,33 +24,60 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $password = Hash::make('password2026');
-        $admin = User::factory()->create(['name' => 'Administrateur SENI-CNF', 'email' => 'senicnf@gmail.com', 'role' => 'admin', 'password' => $password]);
-        $author = User::factory()->create(['name' => 'Auteur SENI-CNF', 'email' => 'auteur.senicnf@gmail.com', 'role' => 'vendor']);
-        User::factory()->create(['name' => 'Utilisateur d’essai', 'email' => 'seniramane@gmail.com', 'role' => 'student', 'password' => $password]);
+        $admin = User::updateOrCreate(
+            ['email' => 'senicnf@gmail.com'],
+            ['name' => 'Administrateur SENI-CNF', 'role' => 'admin', 'password' => $password, 'email_verified_at' => now()]
+        );
+        $author = User::updateOrCreate(
+            ['email' => 'auteur.senicnf@gmail.com'],
+            ['name' => 'Auteur SENI-CNF', 'role' => 'vendor', 'password' => $password, 'email_verified_at' => now()]
+        );
+        User::updateOrCreate(
+            ['email' => 'seniramane@gmail.com'],
+            ['name' => 'Utilisateur d’essai', 'role' => 'student', 'password' => $password, 'email_verified_at' => now()]
+        );
         $cycles = collect(['Primaire' => ['CI', 'CP', 'CE1', 'CE2', 'CM1', 'CM2'], 'Collège' => ['6e', '5e', '4e', '3e'], 'Lycée' => ['Seconde', 'Première', 'Terminale'], 'Université' => ['Licence 1', 'Licence 2', 'Licence 3']])->map(function ($classes, $name) {
-            $cycle = Cycle::create(['name' => $name, 'slug' => str($name)->slug(), 'sort_order' => Cycle::count() + 1]);
+            $cycle = Cycle::updateOrCreate(
+                ['slug' => str($name)->slug()],
+                ['name' => $name, 'sort_order' => Cycle::count() + 1]
+            );
             foreach ($classes as $position => $class) {
-                SchoolClass::create(['cycle_id' => $cycle->id, 'name' => $class, 'slug' => str($class)->slug(), 'sort_order' => $position + 1]);
+                SchoolClass::updateOrCreate(
+                    ['slug' => str($class)->slug()],
+                    ['cycle_id' => $cycle->id, 'name' => $class, 'sort_order' => $position + 1]
+                );
             }
 
             return $cycle;
         });
-        $subjects = collect(['Français', 'Mathématiques', 'Anglais', 'Histoire-Géographie', 'SVT', 'Informatique'])->map(fn ($name) => Subject::create(['name' => $name, 'slug' => str($name)->slug()]));
-        $types = collect(['Cours', 'Exercices', 'Corrigés', 'Annales', 'Fiches de révision'])->map(fn ($name) => ResourceType::create(['name' => $name, 'slug' => str($name)->slug()]));
+        $subjects = collect(['Français', 'Mathématiques', 'Anglais', 'Histoire-Géographie', 'SVT', 'Informatique'])
+            ->map(fn ($name) => Subject::updateOrCreate(['slug' => str($name)->slug()], ['name' => $name]));
+        $types = collect(['Cours', 'Exercices', 'Corrigés', 'Annales', 'Fiches de révision'])
+            ->map(fn ($name) => ResourceType::updateOrCreate(['slug' => str($name)->slug()], ['name' => $name]));
         foreach ([['Révisions Mathématiques - Terminale', 1500], ['Méthode de dissertation française - Première', 1000], ['Algorithmique fondamentale - Licence 1', 2000], ['Annales SVT - 3e', 800]] as $index => [$title, $price]) {
             $pdf = $this->samplePdf($title);
             $filename = str($title)->slug().'.pdf';
             $path = 'resources/catalogue/'.$filename;
             Storage::disk('private')->put($path, $pdf);
 
-            Resource::create(['author_id' => $author->id, 'school_class_id' => SchoolClass::orderBy('id')->skip($index + 2)->first()->id, 'subject_id' => $subjects[$index % $subjects->count()]->id, 'resource_type_id' => $types[$index % $types->count()]->id, 'title' => $title, 'slug' => str($title)->slug(), 'description' => 'Ressource pédagogique autorisée. Seuls les contenus dont la diffusion est autorisée peuvent être publiés.', 'price' => $price, 'status' => 'published', 'visibility' => 'public', 'academic_year' => '2026-2027', 'private_path' => $path, 'original_filename' => $filename, 'mime_type' => 'application/pdf', 'file_size' => strlen($pdf), 'checksum' => hash('sha256', $pdf), 'page_count' => 1, 'rights_statement' => 'Contenu pédagogique autorisé.', 'published_at' => now()]);
+            Resource::updateOrCreate(
+                ['slug' => str($title)->slug()],
+                ['author_id' => $author->id, 'school_class_id' => SchoolClass::orderBy('id')->skip($index + 2)->first()->id, 'subject_id' => $subjects[$index % $subjects->count()]->id, 'resource_type_id' => $types[$index % $types->count()]->id, 'title' => $title, 'description' => 'Ressource pédagogique autorisée. Seuls les contenus dont la diffusion est autorisée peuvent être publiés.', 'price' => $price, 'status' => 'published', 'visibility' => 'public', 'academic_year' => '2026-2027', 'private_path' => $path, 'original_filename' => $filename, 'mime_type' => 'application/pdf', 'file_size' => strlen($pdf), 'checksum' => hash('sha256', $pdf), 'page_count' => 1, 'rights_statement' => 'Contenu pédagogique autorisé.', 'published_at' => now()]
+            );
         }
         $authors = collect([
             ['name' => 'Mariama Koné', 'biography' => 'Autrice de ressources pédagogiques.'],
             ['name' => 'Yao Kouassi', 'biography' => 'Enseignant et auteur de supports scolaires.'],
             ['name' => 'Fatou Diallo', 'biography' => 'Spécialiste des sciences et techniques.'],
-        ])->map(fn ($data) => Author::create([...$data, 'slug' => str($data['name'])->slug()]));
-        $categories = collect(['Sciences', 'Lettres', 'Informatique', 'Préparation aux examens'])->map(fn ($name) => BookCategory::create(['name' => $name, 'slug' => str($name)->slug(), 'description' => "Ouvrages de {$name}."]));
+        ])->map(fn ($data) => Author::updateOrCreate(
+            ['slug' => str($data['name'])->slug()],
+            $data
+        ));
+        $categories = collect(['Sciences', 'Lettres', 'Informatique', 'Préparation aux examens'])
+            ->map(fn ($name) => BookCategory::updateOrCreate(
+                ['slug' => str($name)->slug()],
+                ['name' => $name, 'description' => "Ouvrages de {$name}."]
+            ));
         $seededBooks = collect();
         foreach ([
             ['Méthodes de mathématiques', 0, 0, 4, 2, 'SCI-A-01', 12000],
@@ -60,7 +87,10 @@ class DatabaseSeeder extends Seeder
             ['Techniques de rédaction', 1, 1, 2, 2, 'LET-B-06', 7000],
             ['Bases de données relationnelles', 2, 2, 3, 1, 'INF-C-11', 14000],
         ] as $index => [$title, $authorIndex, $categoryIndex, $total, $available, $shelf, $price]) {
-            $seededBooks->push(Book::create(['author_id' => $authors[$authorIndex]->id, 'book_category_id' => $categories[$categoryIndex]->id, 'title' => $title, 'slug' => str($title)->slug(), 'isbn' => '97800000000'.($index + 1), 'description' => 'Ouvrage sélectionné pour le catalogue, les emprunts et les réservations.', 'price' => $price, 'published_year' => 2026, 'shelf_location' => $shelf, 'total_copies' => $total, 'available_copies' => $available]));
+            $seededBooks->push(Book::updateOrCreate(
+                ['slug' => str($title)->slug()],
+                ['author_id' => $authors[$authorIndex]->id, 'book_category_id' => $categories[$categoryIndex]->id, 'title' => $title, 'isbn' => '97800000000'.($index + 1), 'description' => 'Ouvrage sélectionné pour le catalogue, les emprunts et les réservations.', 'price' => $price, 'published_year' => 2026, 'shelf_location' => $shelf, 'total_copies' => $total, 'available_copies' => $available]
+            ));
         }
 
         $this->seedReadingDocumentForBook($admin, $seededBooks->firstWhere('title', 'Méthodes de mathématiques'));
@@ -105,16 +135,18 @@ class DatabaseSeeder extends Seeder
         $path = 'reading-documents/sample/'.$filename;
         Storage::disk('private')->put($path, $pdf);
 
-        ReadingDocument::create([
-            'uploaded_by' => $admin->id,
-            'book_id' => $book->id,
-            'title' => 'Version numérique - '.$book->title,
-            'description' => 'PDF attaché au livre pour la lecture en ligne, l’emprunt payant à 5 % et l’achat complet avec téléchargement.',
-            'private_path' => $path,
-            'original_filename' => $filename,
-            'mime_type' => 'application/pdf',
-            'file_size' => strlen($pdf),
-            'is_active' => true,
-        ]);
+        ReadingDocument::updateOrCreate(
+            ['private_path' => $path],
+            [
+                'uploaded_by' => $admin->id,
+                'book_id' => $book->id,
+                'title' => 'Version numérique - '.$book->title,
+                'description' => 'PDF attaché au livre pour la lecture en ligne, l’emprunt payant à 5 % et l’achat complet avec téléchargement.',
+                'original_filename' => $filename,
+                'mime_type' => 'application/pdf',
+                'file_size' => strlen($pdf),
+                'is_active' => true,
+            ]
+        );
     }
 }
