@@ -126,3 +126,22 @@ Route::prefix('api')->middleware('throttle:120,1')->group(function () {
         });
     });
 });
+
+
+Route::get('/email/verification/{id}/{hash}', function (\Illuminate\Http\Request $request, string $id) {
+    $user = \App\Models\User::query()->findOrFail($id);
+    abort_unless(hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification())), 403);
+    if (! $user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+    }
+
+    return redirect(rtrim((string) config('app.frontend_url'), '/').'?email_verified=1');
+})->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+
+Route::prefix('api')->middleware(['throttle:3,1', 'guest'])->group(function () {
+    Route::post('/auth/resend-verification', [AuthApiController::class, 'resendVerification']);
+});
+
+Route::prefix('api')->middleware(['throttle:120,1', 'auth'])->group(function () {
+    Route::put('/auth/password', [AuthApiController::class, 'changePassword']);
+});
