@@ -5,5 +5,5 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 COPY . .
 RUN composer install --no-dev --optimize-autoloader
-# Force l'execution des migrations et initialise les donnees au premier demarrage.
-CMD php artisan migrate --force && (php artisan db:seed --force || true) && php artisan serve --host=0.0.0.0 --port=$PORT
+# Production data is migrated during deployments, not whenever a free instance wakes up.
+CMD php artisan serve --host=0.0.0.0 --port=$PORT
